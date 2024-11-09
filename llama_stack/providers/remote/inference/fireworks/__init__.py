@@ -5,6 +5,10 @@
 # the root directory of this source tree.
 
 from .config import FireworksImplConfig
+from pydantic import BaseModel
+
+class FireworksProviderDataValidator(BaseModel):
+    fireworks_api_key: str
 
 
 async def get_adapter_impl(config: FireworksImplConfig, _deps):

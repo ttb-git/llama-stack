@@ -5,7 +5,7 @@ distribution_spec:
   providers:
     inference: meta-reference
     memory:
-    - meta-reference
+    - faiss
     - remote::chromadb
     - remote::pgvector
     safety: meta-reference

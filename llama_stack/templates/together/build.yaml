@@ -3,8 +3,8 @@ distribution_spec:
   description: Use Together.ai for running LLM inference
   providers:
     inference: remote::together
-    memory:
-    - meta-reference
+    memory: 
+    - faiss
     - remote::weaviate
     safety: meta-reference
     agents: meta-reference
