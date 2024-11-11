@@ -12,15 +12,16 @@ import shutil
 import time
 from datetime import datetime
 from functools import partial
+from multiprocessing import cpu_count, Pool
 from pathlib import Path
 from typing import Dict, List
 
 import httpx
+
+from llama_stack.cli.subcommand import Subcommand
 from pydantic import BaseModel
 
 from termcolor import cprint
-
-from llama_stack.cli.subcommand import Subcommand
 
 
 class Download(Subcommand):
@@ -120,20 +121,29 @@ def _hf_download(
     print(f"\nSuccessfully downloaded model to {true_output_dir}")
 
 
+def single_download(info, output_dir, meta_url, f: str) -> None:
+    output_file = str(output_dir / f)
+    url = meta_url.replace("*", f"{info.folder}/{f}")
+    total_size = info.pth_size if "consolidated" in f else 0
+    cprint(f"Downloading `{f}`...", "white")
+    downloader = ResumableDownloader(url, output_file, total_size)
+    asyncio.run(downloader.download())
+    return None
+
+
 def _meta_download(model: "Model", meta_url: str, info: "LlamaDownloadInfo"):
     from llama_stack.distribution.utils.model_utils import model_local_dir
 
     output_dir = Path(model_local_dir(model.descriptor()))
     os.makedirs(output_dir, exist_ok=True)
+    num_workers = min(len(info.files), cpu_count())
 
     # I believe we can use some concurrency here if needed but not sure it is worth it
-    for f in info.files:
-        output_file = str(output_dir / f)
-        url = meta_url.replace("*", f"{info.folder}/{f}")
-        total_size = info.pth_size if "consolidated" in f else 0
-        cprint(f"Downloading `{f}`...", "white")
-        downloader = ResumableDownloader(url, output_file, total_size)
-        asyncio.run(downloader.download())
+
+    pool = Pool(num_workers)
+    download_func = partial(single_download, info, output_dir, meta_url)
+    pool.map(download_func, info.files)
+    pool.close()
 
     print(f"\nSuccessfully downloaded model to {output_dir}")
     cprint(f"\nMD5 Checksums are at: {output_dir / 'checklist.chk'}", "white")
