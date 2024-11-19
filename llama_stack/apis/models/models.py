@@ -44,13 +44,13 @@ class ModelInput(CommonModelFields):
 
 @runtime_checkable
 class Models(Protocol):
-    @webmethod(route="/models/list", method="GET")
+    @webmethod(route="/alpha/models/list", method="GET")
     async def list_models(self) -> List[Model]: ...
 
-    @webmethod(route="/models/get", method="GET")
+    @webmethod(route="/alpha/models/get", method="GET")
     async def get_model(self, identifier: str) -> Optional[Model]: ...
 
-    @webmethod(route="/models/register", method="POST")
+    @webmethod(route="/alpha/models/register", method="POST")
     async def register_model(
         self,
         model_id: str,
@@ -59,5 +59,5 @@ class Models(Protocol):
         metadata: Optional[Dict[str, Any]] = None,
     ) -> Model: ...
 
-    @webmethod(route="/models/unregister", method="POST")
+    @webmethod(route="/alpha/models/unregister", method="POST")
     async def unregister_model(self, model_id: str) -> None: ...
