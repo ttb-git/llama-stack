@@ -15,7 +15,7 @@ llm_as_judge_base = ScoringFn(
     provider_resource_id="llm-as-judge-base",
     params=LLMAsJudgeScoringFnParams(
         judge_model="meta-llama/Llama-3.1-405B-Instruct",
-        prompt_template=None,
-        judge_score_regexes=None,
+        prompt_template="ENTER JUDGE PROMPT HERE",
+        judge_score_regexes=[],
     ),
 )
